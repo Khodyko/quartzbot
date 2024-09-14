@@ -17,7 +17,8 @@ import org.khodyko.quartzbot.enums.JavaTopicEnum;
 public class JavaMessage extends AbstractMessage {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long id;
 
     @Enumerated(EnumType.STRING)

@@ -3,7 +3,12 @@ package org.khodyko.quartzbot.enums;
 public enum JavaTopicEnum {
     CORE("Java core"),
     HIBERNATE("Hibernate"),
-    SPRING("Spring");
+    SPRING("Spring"),
+    RBD("Relational Databases"),
+    GIT("Git"),
+    MAVEN("Maven"),
+    GRADLE("Docker"),
+    REST("Rest");
     private String nameOfTopic;
 
     JavaTopicEnum(String nameOfTopic) {

@@ -1,0 +1,135 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: your_name
+      changes:
+        - createTable:
+            tableName: active_chats
+            columns:
+              - column:
+                  name: pid
+                  type: bigint
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: chat_id
+                  type: varchar(255)
+                  constraints:
+                    unique: true
+                    nullable: false
+              - column:
+                  name: english
+                  type: boolean
+              - column:
+                  name: java
+                  type: boolean
+              - column:
+                  name: java_topic_enum
+                  type: varchar(255)  # Assuming enum is stored as a string
+  - changeSet:
+      id: 2
+      author: your_name
+      changes:
+        - createTable:
+            tableName: english_message
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+              - column:
+                  name: text
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: translation
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: 3
+      author: your_name
+      changes:
+        - createTable:
+            tableName: java_message
+            columns:
+              - column:
+                  name: id
+                  type: serial
+                  constraints:
+                    primaryKey: true
+                    autoIncrement: true
+              - column:
+                  name: text
+                  type: varchar(255)
+              - column:
+                  name: topic
+                  type: varchar(255)  # Assuming enum is stored as a string
+  - changeSet:
+      id: 4
+      author: your_name
+      changes:
+        - sqlFile:
+            path: english_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 5
+      author: your_name
+      changes:
+        - sqlFile:
+            path: java_core_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 6
+      author: your_name
+      changes:
+        - sqlFile:
+            path: java_rbd_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 7
+      author: your_name
+      changes:
+        - sqlFile:
+            path: java_rest_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 8
+      author: your_name
+      changes:
+        - sqlFile:
+            path: java_spring_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 9
+      author: your_name
+      changes:
+        - sqlFile:
+            path: java_hibernate_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 10
+      author: your_name
+      changes:
+        - sqlFile:
+            path: java_maven_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 11
+      author: your_name
+      changes:
+        - sqlFile:
+            path: java_git_message.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 00000000000000
+      author: jhipster
+      dbms: postgresql,oracle
+      changes:
+        - createSequence:
+            sequenceName: sequence_generator
+            startValue: 20000
+            incrementBy: 1

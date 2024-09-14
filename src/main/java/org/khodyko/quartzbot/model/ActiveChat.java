@@ -12,7 +12,8 @@ import org.khodyko.quartzbot.enums.JavaTopicEnum;
 public class ActiveChat {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
+    @SequenceGenerator(name = "sequenceGenerator")
     private Long pid;
 
     // Getters and Setters
