@@ -37,7 +37,7 @@ public class ScheduledExecutor {
     }
 
     // Метод, который будет вызываться с заданной периодичностью
-    @Scheduled(fixedRate = 30000) // Отправка сообщения каждые 60 секунд
+    @Scheduled(fixedRate = 30000)
     public void sendEnglishMessages() {
 
         List<ActiveChat> engChats = activeChatService.getActiveEnglishChats();
@@ -64,7 +64,7 @@ public class ScheduledExecutor {
     }
 
     // Метод, который будет вызываться с заданной периодичностью
-    @Scheduled(fixedRate = 30000) // Отправка сообщения каждые 60 секунд
+    @Scheduled(fixedRate = 30000)
     public void sendJavaMessages() {
 
         List<ActiveChat> javaChats = activeChatService.getActiveJavaChats();
