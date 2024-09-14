@@ -42,8 +42,8 @@ public class ScheduledExecutor {
         this.javaMessageService = javaMessageService;
     }
 
-    // Метод, который будет вызываться с заданной периодичностью
-    @Scheduled(fixedRate = 30000)
+
+    @Scheduled(cron = "0 0 7 * * ?") //7 утра
     public void sendEnglishMessages() {
 
         List<ActiveChat> engChats = activeChatService.getActiveEnglishChats();
@@ -69,8 +69,7 @@ public class ScheduledExecutor {
         }
     }
 
-    // Метод, который будет вызываться с заданной периодичностью
-    @Scheduled(fixedRate = 30000)
+    @Scheduled(cron = "0 0 7 * * ?") //7 утра
     public void sendJavaMessages() {
 
         List<ActiveChat> javaChats = activeChatService.getActiveJavaChats();
