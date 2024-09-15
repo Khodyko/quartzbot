@@ -9,7 +9,9 @@ import org.khodyko.quartzbot.service.JavaMessageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.List;
 
@@ -52,17 +54,20 @@ public class ScheduledExecutor {
             String chatId = chat.getChatId();
             String messageText = String.format(ENG_WORD_OF_THE_DAY_TEMPLATE, randomEnglishMessage.getText(),
                     randomEnglishMessage.getTranslation());
-            sendMessageToChat(messageText, chatId);
+            sendMessageToChatAndPin(messageText, chatId);
         }
     }
 
-    private void sendMessageToChat(String text, String chatId) {
+    private void sendMessageToChatAndPin(String text, String chatId) {
         if (chatId != null) {
             SendMessage message = new SendMessage();
             message.setChatId(chatId);
             message.setText(text);
             try {
-                quartzMessageBot.execute(message);
+                Message sendedMsg = quartzMessageBot.execute(message);
+                Long msgId = sendedMsg.getMessageId().longValue();
+                PinChatMessage pinChatMessage = new PinChatMessage(chatId.toString(), Math.toIntExact(msgId));
+                quartzMessageBot.execute(pinChatMessage);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -81,11 +86,11 @@ public class ScheduledExecutor {
                 javaMessage = javaMessageService.getRandomJavaMessage();
             }
             String chatId = chat.getChatId();
-            if(javaMessage!=null){
+            if (javaMessage != null) {
                 String javaText = javaMessage.getText();
-                sendMessageToChat(javaText, chatId);
-            } else{
-                sendMessageToChat("Что-то пошло не так. Может в следующий раз :р", chatId);
+                sendMessageToChatAndPin(javaText, chatId);
+            } else {
+                sendMessageToChatAndPin("Что-то пошло не так. Может в следующий раз :р", chatId);
             }
 
         }
