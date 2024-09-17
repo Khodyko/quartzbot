@@ -110,10 +110,12 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
 
         // First row of buttons
         List<InlineKeyboardButton> row1 = new ArrayList<>();
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
         row1.add(randomQuestionBtn);
-        row1.add(randomEngBtn);
+        row2.add(randomEngBtn);
 
         buttons.add(row1);
+        buttons.add(row2);
         markup.setKeyboard(buttons);
 
         // Send message with inline keyboard
