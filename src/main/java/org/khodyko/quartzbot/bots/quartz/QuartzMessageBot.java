@@ -6,6 +6,8 @@ import org.khodyko.quartzbot.model.ActiveChat;
 import org.khodyko.quartzbot.model.JavaMessage;
 import org.khodyko.quartzbot.service.ActiveChatService;
 import org.khodyko.quartzbot.service.JavaMessageService;
+import org.khodyko.quartzbot.service.EnglishMessageService;
+import org.khodyko.quartzbot.model.EnglishMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
     private static final String JAVA_OFF_BTN = "javaOff";
 
     private static final String GET_RANDOM_JAVA_QUESTION_BTN= "getRandomJavaQuestionBtn";
+    private static final String GET_RANDOM_ENGLISH_QUESTION_BTN= "getRandomEnglishQuestionBtn";
     private static final String JAVA_TOPIC_SET_COMMAND = "java_topic_set_bot";
     private static final String JAVA_TOPIC_GET_ALL_COMMAND = "java_topic_get_all";
     Logger logger = LoggerFactory.getLogger(QuartzMessageBot.class);
@@ -36,12 +39,15 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
     private final BotConfig botConfig;
     private ActiveChatService activeChatService;
     private JavaMessageService javaMessageService;
+    private EnglishMessageService englishMessageService;
 
     @Autowired
-    public QuartzMessageBot( BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService) {
+    public QuartzMessageBot( BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService,
+                             EnglishMessageService englishMessageService) {
         this.botConfig = botConfig;
         this.activeChatService = activeChatService;
         this.javaMessageService = javaMessageService;
+        this.englishMessageService = englishMessageService;
     }
 
     @Override
@@ -96,12 +102,16 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
                 .text("Сгенерировать рандомный вопрос по java")
                 .callbackData(GET_RANDOM_JAVA_QUESTION_BTN) // Set callback data
                 .build();
-
+        InlineKeyboardButton randomEngBtn = InlineKeyboardButton.builder()
+                .text("Сгенерировать рандомное слово на англ")
+                .callbackData(GET_RANDOM_ENGLISH_QUESTION_BTN) // Set callback data
+                .build();
 
 
         // First row of buttons
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(randomQuestionBtn);
+        row1.add(randomEngBtn);
 
         buttons.add(row1);
         markup.setKeyboard(buttons);
@@ -214,6 +224,18 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
                 JavaMessage javaMessage=javaMessageService.getRandomJavaMessage();
                 if(javaMessage!=null){
                     responseText= String.format("Внимание вопрос! \n %s", javaMessage.getText());
+                } else {
+                    responseText = "Что-то пошло не так. Видимо не сегодня :Р";
+                }
+                break;
+            case GET_RANDOM_ENGLISH_QUESTION_BTN:
+                 EnglishMessage englishMessage=englishMessageService.getRandomEnglishMessage();
+                if(englishMessage!=null){
+                    responseText= String.format("""
+            Word of the day 
+            %s - %s
+            Write sentence with this word.
+            """, englishMessage.getText(), englishMessage.getTranslation());
                 } else {
                     responseText = "Что-то пошло не так. Видимо не сегодня :Р";
                 }
