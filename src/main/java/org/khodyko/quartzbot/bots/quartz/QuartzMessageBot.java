@@ -8,6 +8,7 @@ import org.khodyko.quartzbot.service.ActiveChatService;
 import org.khodyko.quartzbot.service.JavaMessageService;
 import org.khodyko.quartzbot.service.EnglishMessageService;
 import org.khodyko.quartzbot.model.EnglishMessage;
+import org.khodyko.quartzbot.service.SendMeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Component
@@ -41,14 +43,45 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
     private JavaMessageService javaMessageService;
     private EnglishMessageService englishMessageService;
 
-    @Autowired
-    public QuartzMessageBot( BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService,
-                             EnglishMessageService englishMessageService) {
+    private SendMeService sendMeService;
+
+    public QuartzMessageBot(BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
         this.botConfig = botConfig;
         this.activeChatService = activeChatService;
         this.javaMessageService = javaMessageService;
         this.englishMessageService = englishMessageService;
+        this.sendMeService = sendMeService;
     }
+
+    public QuartzMessageBot(DefaultBotOptions options, BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
+        super(options);
+        this.botConfig = botConfig;
+        this.activeChatService = activeChatService;
+        this.javaMessageService = javaMessageService;
+        this.englishMessageService = englishMessageService;
+        this.sendMeService = sendMeService;
+    }
+
+    public QuartzMessageBot(String botToken, BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
+        super(botToken);
+        this.botConfig = botConfig;
+        this.activeChatService = activeChatService;
+        this.javaMessageService = javaMessageService;
+        this.englishMessageService = englishMessageService;
+        this.sendMeService = sendMeService;
+    }
+
+    public QuartzMessageBot(DefaultBotOptions options, String botToken, BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
+        super(options, botToken);
+        this.botConfig = botConfig;
+        this.activeChatService = activeChatService;
+        this.javaMessageService = javaMessageService;
+        this.englishMessageService = englishMessageService;
+        this.sendMeService = sendMeService;
+    }
+
+    @Autowired
+
 
     @Override
     public String getBotUsername() {
@@ -70,25 +103,29 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
     }
 
     private void handleIncomingMessage(Update update) {
-        Long chatId = update.getMessage().getChatId();
-        String msgTxt = update.getMessage().getText();
-        if (msgTxt != null) {
-            if(msgTxt.equals("@" + botConfig.getBotName())){
-                handleButtonGetQuestion(chatId);
-            } else if (msgTxt.equals("@" + botConfig.getBotName()+"_chat_settings")) {
-                handleButtonChatSettings(chatId);
-            } else if (msgTxt.startsWith(JAVA_TOPIC_SET_COMMAND)) {
-                String topicForChangeStr = msgTxt.substring(JAVA_TOPIC_SET_COMMAND.length()).trim();
-                JavaTopicEnum javaTopicEnum = JavaTopicEnum.findByString(topicForChangeStr);
-                ActiveChat activeChat = activeChatService.setActiveChatTopicByString(String.valueOf(chatId), javaTopicEnum);
-                if (activeChat != null) {
-                    sendStandardMsg(String.valueOf(chatId), "Установлен топик: " + activeChat.getJavaTopicEnum().getNameOfTopic());
-                } else {
-                    sendStandardMsg(String.valueOf(chatId), "Произошла ошибка установки топика");
+        try {
+            Long chatId = update.getMessage().getChatId();
+            String msgTxt = update.getMessage().getText();
+            if (msgTxt != null) {
+                if (msgTxt.equals("@" + botConfig.getBotName())) {
+                    handleButtonGetQuestion(chatId);
+                } else if (msgTxt.equals("@" + botConfig.getBotName() + "_chat_settings")) {
+                    handleButtonChatSettings(chatId);
+                } else if (msgTxt.startsWith(JAVA_TOPIC_SET_COMMAND)) {
+                    String topicForChangeStr = msgTxt.substring(JAVA_TOPIC_SET_COMMAND.length()).trim();
+                    JavaTopicEnum javaTopicEnum = JavaTopicEnum.findByString(topicForChangeStr);
+                    ActiveChat activeChat = activeChatService.setActiveChatTopicByString(String.valueOf(chatId), javaTopicEnum);
+                    if (activeChat != null) {
+                        sendStandardMsg(String.valueOf(chatId), "Установлен топик: " + activeChat.getJavaTopicEnum().getNameOfTopic());
+                    } else {
+                        sendStandardMsg(String.valueOf(chatId), "Произошла ошибка установки топика");
+                    }
+                } else if (msgTxt.equals(JAVA_TOPIC_GET_ALL_COMMAND)) {
+                    sendStandardMsg(String.valueOf(chatId), JavaTopicEnum.toStringTopicNames());
                 }
-            } else if (msgTxt.equals(JAVA_TOPIC_GET_ALL_COMMAND)){
-                sendStandardMsg(String.valueOf(chatId), JavaTopicEnum.toStringTopicNames());
             }
+        } catch (Exception e) {
+            sendMeService.sendMe(Arrays.toString(e.getStackTrace()));
         }
     }
 
