@@ -1,5 +1,7 @@
 package org.khodyko.quartzbot.service;
 
+import java.util.List;
+
 public interface SendMeService {
-    void sendMe(String message);
+    void sendMe(List<String> messages);
 }

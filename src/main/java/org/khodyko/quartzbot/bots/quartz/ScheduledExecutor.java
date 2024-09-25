@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ScheduledExecutor {
@@ -61,7 +62,7 @@ public class ScheduledExecutor {
                 sendMessageToChatAndPin(messageText, chatId);
             }
         } catch (Exception e) {
-            sendMeService.sendMe(Arrays.toString(e.getStackTrace()));
+            sendMeService.sendMe(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()));
         }
     }
 
@@ -79,7 +80,7 @@ public class ScheduledExecutor {
 
             }
         } catch (Exception e) {
-            sendMeService.sendMe(Arrays.toString(e.getStackTrace()));
+            sendMeService.sendMe(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()));
         }
     }
 
@@ -103,7 +104,7 @@ public class ScheduledExecutor {
                 }
             }
         } catch (Exception e) {
-            sendMeService.sendMe(Arrays.toString(e.getStackTrace()));
+            sendMeService.sendMe(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()));
         }
     }
 

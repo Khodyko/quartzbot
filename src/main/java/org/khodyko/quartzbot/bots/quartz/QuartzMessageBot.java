@@ -12,6 +12,7 @@ import org.khodyko.quartzbot.service.SendMeService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.DefaultBotOptions;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -23,6 +24,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 public class QuartzMessageBot extends TelegramLongPollingBot {
@@ -45,43 +47,15 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
 
     private SendMeService sendMeService;
 
-    public QuartzMessageBot(BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
-        this.botConfig = botConfig;
-        this.activeChatService = activeChatService;
-        this.javaMessageService = javaMessageService;
-        this.englishMessageService = englishMessageService;
-        this.sendMeService = sendMeService;
-    }
-
-    public QuartzMessageBot(DefaultBotOptions options, BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
-        super(options);
-        this.botConfig = botConfig;
-        this.activeChatService = activeChatService;
-        this.javaMessageService = javaMessageService;
-        this.englishMessageService = englishMessageService;
-        this.sendMeService = sendMeService;
-    }
-
-    public QuartzMessageBot(String botToken, BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
-        super(botToken);
-        this.botConfig = botConfig;
-        this.activeChatService = activeChatService;
-        this.javaMessageService = javaMessageService;
-        this.englishMessageService = englishMessageService;
-        this.sendMeService = sendMeService;
-    }
-
-    public QuartzMessageBot(DefaultBotOptions options, String botToken, BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService, SendMeService sendMeService) {
-        super(options, botToken);
-        this.botConfig = botConfig;
-        this.activeChatService = activeChatService;
-        this.javaMessageService = javaMessageService;
-        this.englishMessageService = englishMessageService;
-        this.sendMeService = sendMeService;
-    }
 
     @Autowired
-
+    public QuartzMessageBot(BotConfig botConfig, ActiveChatService activeChatService, JavaMessageService javaMessageService, EnglishMessageService englishMessageService,@Lazy SendMeService sendMeService) {
+        this.botConfig = botConfig;
+        this.activeChatService = activeChatService;
+        this.javaMessageService = javaMessageService;
+        this.englishMessageService = englishMessageService;
+        this.sendMeService = sendMeService;
+    }
 
     @Override
     public String getBotUsername() {
@@ -125,7 +99,7 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
                 }
             }
         } catch (Exception e) {
-            sendMeService.sendMe(Arrays.toString(e.getStackTrace()));
+            sendMeService.sendMe(Arrays.stream(e.getStackTrace()).map(StackTraceElement::toString).collect(Collectors.toList()));
         }
     }
 
