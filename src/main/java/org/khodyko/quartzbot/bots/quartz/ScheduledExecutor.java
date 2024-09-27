@@ -50,7 +50,7 @@ public class ScheduledExecutor {
         this.sendMeService = sendMeService;
     }
 
-    @Scheduled(cron = "0 0 7 * * ?") //7 утра
+    @Scheduled(cron = "0 30 8 * * ?") //7 утра
     public void sendEnglishMessages() {
         try {
             List<ActiveChat> engChats = activeChatService.getActiveEnglishChats();
@@ -84,7 +84,7 @@ public class ScheduledExecutor {
         }
     }
 
-    @Scheduled(cron = "0 0 7 * * ?") //7 утра
+    @Scheduled(cron = "0 30 5 * * ?") //7 утра
     public void sendJavaMessages() {
         try {
             List<ActiveChat> javaChats = activeChatService.getActiveJavaChats();
