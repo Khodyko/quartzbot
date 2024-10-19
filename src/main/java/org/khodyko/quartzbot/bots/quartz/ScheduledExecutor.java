@@ -20,18 +20,6 @@ import java.util.stream.Collectors;
 
 @Service
 public class ScheduledExecutor {
-
-    private final static String ENG_WORD_OF_THE_DAY_TEMPLATE = """
-            Word of the day 
-            %s - %s
-            Write sentence with this word.
-            """;
-
-    private final static String JAVA_QUESTION_TEMPLATE = """
-            Вопрос дня: 
-            %s
-            """;
-
     private ActiveChatService activeChatService;
     private QuartzMessageBot quartzMessageBot;
 
@@ -50,15 +38,14 @@ public class ScheduledExecutor {
         this.sendMeService = sendMeService;
     }
 
-    @Scheduled(cron = "0 30 8 * * ?") //7 утра
+    @Scheduled(cron = "0 0 7 * * ?") //7 утра
     public void sendEnglishMessages() {
         try {
             List<ActiveChat> engChats = activeChatService.getActiveEnglishChats();
             EnglishMessage randomEnglishMessage = englishMessageService.getRandomEnglishMessage();
             for (ActiveChat chat : engChats) {
                 String chatId = chat.getChatId();
-                String messageText = String.format(ENG_WORD_OF_THE_DAY_TEMPLATE, randomEnglishMessage.getText(),
-                        randomEnglishMessage.getTranslation());
+                String messageText = randomEnglishMessage.getWordOfTheDayMessage();
                 sendMessageToChatAndPin(messageText, chatId);
             }
         } catch (Exception e) {
@@ -84,7 +71,7 @@ public class ScheduledExecutor {
         }
     }
 
-    @Scheduled(cron = "0 30 5 * * ?") //7 утра
+    @Scheduled(cron = "0 0 7 * * ?") //7 утра
     public void sendJavaMessages() {
         try {
             List<ActiveChat> javaChats = activeChatService.getActiveJavaChats();
@@ -97,7 +84,7 @@ public class ScheduledExecutor {
                 }
                 String chatId = chat.getChatId();
                 if (javaMessage != null) {
-                    String javaText = String.format(JAVA_QUESTION_TEMPLATE, javaMessage.getText());
+                    String javaText = javaMessage.getQuestionOfTheDay();
                     sendMessageToChatAndPin(javaText, chatId);
                 } else {
                     sendMessageToChatAndPin("Что-то пошло не так. Может в следующий раз :р", chatId);

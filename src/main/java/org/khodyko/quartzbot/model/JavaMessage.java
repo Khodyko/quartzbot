@@ -16,6 +16,11 @@ import org.khodyko.quartzbot.enums.JavaTopicEnum;
 @Table
 public class JavaMessage extends AbstractMessage {
 
+    private final static String JAVA_QUESTION_TEMPLATE = """
+            Вопрос дня: 
+            %s
+            """;
+
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
@@ -24,5 +29,7 @@ public class JavaMessage extends AbstractMessage {
     @Enumerated(EnumType.STRING)
     private JavaTopicEnum topic;
 
-
+    public String getQuestionOfTheDay(){
+        return String.format(JAVA_QUESTION_TEMPLATE, getText());
+    }
 }

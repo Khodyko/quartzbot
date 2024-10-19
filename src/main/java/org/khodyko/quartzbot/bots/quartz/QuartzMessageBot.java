@@ -236,7 +236,7 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
             case GET_RANDOM_JAVA_QUESTION_BTN:
                 JavaMessage javaMessage=javaMessageService.getRandomJavaMessage();
                 if(javaMessage!=null){
-                    responseText= String.format("Внимание вопрос! \n %s", javaMessage.getText());
+                    responseText= javaMessage.getQuestionOfTheDay();
                 } else {
                     responseText = "Что-то пошло не так. Видимо не сегодня :Р";
                 }
@@ -244,11 +244,7 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
             case GET_RANDOM_ENGLISH_QUESTION_BTN:
                  EnglishMessage englishMessage=englishMessageService.getRandomEnglishMessage();
                 if(englishMessage!=null){
-                    responseText= String.format("""
-            Word of the day 
-            %s - %s
-            Write sentence with this word.
-            """, englishMessage.getText(), englishMessage.getTranslation());
+                    responseText= englishMessage.getWordOfTheDayMessage();
                 } else {
                     responseText = "Что-то пошло не так. Видимо не сегодня :Р";
                 }
@@ -268,6 +264,5 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
             e.printStackTrace();
         }
     }
-
 
 }

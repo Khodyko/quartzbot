@@ -5,7 +5,6 @@ import jakarta.persistence.MappedSuperclass;
 @MappedSuperclass
 public class AbstractMessage {
 
-
     private String text;
 
     public AbstractMessage( String text) {
