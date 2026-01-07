@@ -1,0 +1,21 @@
+# Local development configuration
+# Скопируйте этот файл в application-local.properties и заполните своими значениями
+# application-local.properties уже добавлен в .gitignore и не будет закоммичен в git
+
+# Telegram Bot Configuration
+# Имя бота (без @)
+bot.name=your_bot_name_here
+
+# Токен бота от @BotFather
+bot.token=your_bot_token_here
+
+# ID чата для отправки логов (можно получить через @userinfobot или другие боты)
+bot.log.chat.id=your_chat_id_here
+
+# Database Configuration
+# URL базы данных (для локальной разработки используйте порт 5434, так как Docker использует 5433)
+spring.datasource.url=jdbc:postgresql://localhost:5434/postgres
+spring.datasource.username=postgres
+spring.datasource.password=postgres
+
+
