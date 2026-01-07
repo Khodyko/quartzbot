@@ -171,3 +171,17 @@ databaseChangeLog:
         - sqlFile:
             path: changelog_2/english_message.sql
             relativeToChangelogFile: true
+  - changeSet:
+      id: 15
+      author: your_name
+      changes:
+        - sqlFile:
+            path: changelog_3/vacancies_support.sql
+            relativeToChangelogFile: true
+  - changeSet:
+      id: 16
+      author: your_name
+      changes:
+        - sqlFile:
+            path: changelog_4/add_message_thread_id.sql
+            relativeToChangelogFile: true

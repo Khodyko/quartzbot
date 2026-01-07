@@ -12,7 +12,7 @@ import java.util.List;
 
 @Component
 public class SendMe implements SendMeService {
-    @Value("${bot.igor.chat.id}")
+    @Value("${bot.log.chat.id:${BOT_LOG_CHAT_ID:}}")
     private String myChatId;
     private QuartzMessageBot quartzMessageBot;
 

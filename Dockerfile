@@ -1,11 +1,9 @@
-# Use the base image with JDK 21
-FROM openjdk:21-jdk-slim
-
-# Set the working directory
+# Runtime stage
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
 
-# Copy the JAR file of your application into the container
-COPY quartzbot-0.0.1-SNAPSHOT.jar app.jar
+# Copy the JAR file (предполагается, что JAR уже собран локально через ./gradlew build)
+COPY build/libs/quartzbot-0.0.1-SNAPSHOT.jar app.jar
 
 # Update package lists, install tzdata and curl
 RUN apt-get update && \

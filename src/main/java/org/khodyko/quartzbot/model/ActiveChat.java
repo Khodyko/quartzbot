@@ -26,4 +26,15 @@ public class ActiveChat {
 
     @Enumerated(EnumType.STRING)
     private JavaTopicEnum javaTopicEnum;
+
+    private boolean vacancies; // Indicates if vacancies are enabled for this chat
+
+    @Column(columnDefinition = "TEXT")
+    private String vacancyAreas; // JSON array of area IDs for vacancy search
+
+    /**
+     * ID топика форума для отправки сообщений в конкретный топик
+     * Используется только для форум-групп (supergroup с включенными топиками)
+     */
+    private Integer messageThreadId;
 }

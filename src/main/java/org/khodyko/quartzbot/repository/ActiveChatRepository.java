@@ -15,4 +15,6 @@ public interface ActiveChatRepository extends JpaRepository<ActiveChat, Long> {
 
     // New method to find by chatId
     ActiveChat findByChatId(String chatId);
+
+    List<ActiveChat> findByVacancies(boolean vacancies);
 }
