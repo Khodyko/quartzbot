@@ -105,13 +105,15 @@ public class ActiveChatServiceImpl implements ActiveChatService {
     }
 
     @Override
-    public ActiveChat updateVacanciesByChatId(String chatId, boolean isVacancies) {
+    public ActiveChat updateVacanciesByChatId(String chatId, boolean isVacancies, Integer threadId) {
         ActiveChat activeChat = activeChatRepository.findByChatId(chatId);
 
         if (activeChat == null) {
             activeChat = new ActiveChat();
             activeChat.setChatId(chatId);
         }
+
+        activeChat.setMessageThreadId(threadId);
 
         activeChat.setVacancies(isVacancies);
 

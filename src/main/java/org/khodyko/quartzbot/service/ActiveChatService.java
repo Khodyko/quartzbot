@@ -24,7 +24,7 @@ public interface ActiveChatService {
      * @param isVacancies флаг включения вакансий
      * @return обновленный ActiveChat
      */
-    ActiveChat updateVacanciesByChatId(String chatId, boolean isVacancies);
+    ActiveChat updateVacanciesByChatId(String chatId, boolean isVacancies, Integer threadId);
 
     /**
      * Добавляет регион в список регионов для поиска вакансий

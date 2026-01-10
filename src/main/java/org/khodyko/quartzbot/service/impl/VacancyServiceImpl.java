@@ -14,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.khodyko.quartzbot.bots.quartz.QuartzMessageBot;
+import org.telegram.telegrambots.meta.api.methods.pinnedmessages.PinChatMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,6 +31,7 @@ public class VacancyServiceImpl implements VacancyService {
     private static final Logger logger = LoggerFactory.getLogger(VacancyServiceImpl.class);
     private static final int PER_PAGE = 100;
     private static final int DELAY_BETWEEN_MESSAGES_MS = 150;
+    private static final int DELAY_BETWEEN_10_MESSAGES_MS = 30000;
     private static final int DELAY_BETWEEN_PAGES_MS = 500;
 
     private final ActiveChatService activeChatService;
@@ -129,6 +132,9 @@ public class VacancyServiceImpl implements VacancyService {
                     String formattedMessage = vacancyMessageFormatter.formatVacancy(vacancy);
                     sendMessageToChat(formattedMessage, chatId);
                     totalSent++;
+                    if(totalSent%10==0){
+                        Thread.sleep(DELAY_BETWEEN_10_MESSAGES_MS);
+                    }
 
                     // Небольшая задержка между сообщениями для избежания rate limiting
                     Thread.sleep(DELAY_BETWEEN_MESSAGES_MS);
@@ -154,7 +160,7 @@ public class VacancyServiceImpl implements VacancyService {
         // Отправляем итоговое сообщение
         if (totalSent > 0) {
             String summaryMessage = vacancyMessageFormatter.formatSummary(totalFound, date);
-            sendMessageToChat(summaryMessage, chatId);
+            sendMessageToChatAndPin(summaryMessage, chatId);
         } else {
             String noVacanciesMessage = String.format("❌ Вакансий за %s не найдено", date);
             sendMessageToChat(noVacanciesMessage, chatId);
@@ -229,6 +235,43 @@ public class VacancyServiceImpl implements VacancyService {
             }
         } catch (Exception e) {
             logger.error("Ошибка при отправке сообщения в чат {}: {}", chatId, e.getMessage(), e);
+            sendMeService.sendMe(Arrays.stream(e.getStackTrace())
+                    .map(StackTraceElement::toString)
+                    .collect(Collectors.toList()));
+        }
+    }
+
+    /**
+     * Отправляет сообщение в чат и закрепляет его с поддержкой топиков форума
+     *
+     * @param text текст сообщения
+     * @param chatId ID чата
+     */
+    private void sendMessageToChatAndPin(String text, String chatId) {
+        try {
+            if (chatId != null) {
+                SendMessage message = new SendMessage();
+                message.setChatId(chatId);
+                message.setText(text);
+
+                // Получаем ActiveChat для проверки наличия message_thread_id (для форум-групп)
+                ActiveChat activeChat = activeChatService.getActiveChatByChatId(chatId);
+                if (activeChat != null && activeChat.getMessageThreadId() != null) {
+                    // Если есть сохраненный thread_id, используем его (это форум-группа)
+                    message.setMessageThreadId(activeChat.getMessageThreadId());
+                }
+
+                // Отправляем сообщение и получаем его для закрепления
+                Message sentMessage = quartzMessageBot.execute(message);
+                if (sentMessage != null && sentMessage.getMessageId() != null) {
+                    Long msgId = sentMessage.getMessageId().longValue();
+                    PinChatMessage pinChatMessage = new PinChatMessage(chatId, Math.toIntExact(msgId));
+                    quartzMessageBot.execute(pinChatMessage);
+                    logger.debug("Сообщение закреплено в чате {}: {}", chatId, msgId);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Ошибка при отправке и закреплении сообщения в чат {}: {}", chatId, e.getMessage(), e);
             sendMeService.sendMe(Arrays.stream(e.getStackTrace())
                     .map(StackTraceElement::toString)
                     .collect(Collectors.toList()));

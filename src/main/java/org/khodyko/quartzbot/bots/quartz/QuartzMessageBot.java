@@ -96,16 +96,6 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
             Long chatId = update.getMessage().getChatId();
             String msgTxt = update.getMessage().getText();
             
-            // Сохраняем message_thread_id если сообщение из топика форума
-            Integer messageThreadId = update.getMessage().getMessageThreadId();
-            if (messageThreadId != null) {
-                // Проверяем, что это форум-группа (supergroup с включенными топиками)
-                if (update.getMessage().getChat().getIsForum()) {
-                    activeChatService.updateMessageThreadId(String.valueOf(chatId), messageThreadId);
-                    logger.debug("Сохранен message_thread_id {} для чата {}", messageThreadId, chatId);
-                }
-            }
-            
             if (msgTxt != null) {
                 if (msgTxt.equals("@" + botConfig.getBotName())) {
                     handleButtonGetQuestion(chatId);
@@ -309,21 +299,15 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
     private void handleCallbackQuery(Update update) {
         String callbackData = update.getCallbackQuery().getData();
         Long chatId = update.getCallbackQuery().getMessage().getChatId();
-        
+
         // Сохраняем message_thread_id если callback из топика форума
         // getMessage() возвращает MaybeInaccessibleMessage, проверяем что это Message
         var maybeMessage = update.getCallbackQuery().getMessage();
+        Integer messageThreadId = null;
         if (maybeMessage instanceof org.telegram.telegrambots.meta.api.objects.Message) {
             org.telegram.telegrambots.meta.api.objects.Message callbackMessage = 
                 (org.telegram.telegrambots.meta.api.objects.Message) maybeMessage;
-            Integer messageThreadId = callbackMessage.getMessageThreadId();
-            if (messageThreadId != null) {
-                // Проверяем, что это форум-группа (supergroup с включенными топиками)
-                if (callbackMessage.getChat().getIsForum()) {
-                    activeChatService.updateMessageThreadId(String.valueOf(chatId), messageThreadId);
-                    logger.debug("Сохранен message_thread_id {} для чата {} из callback", messageThreadId, chatId);
-                }
-            }
+           messageThreadId = callbackMessage.getMessageThreadId();
         }
 
         // Respond based on the callback data
@@ -362,10 +346,10 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
                 }
                 break;
             case VACANCIES_ON_BTN:
-                handleVacanciesOn(chatId);
+                handleVacanciesOn(chatId, messageThreadId);
                 return; // Ответ отправляется внутри метода
             case VACANCIES_OFF_BTN:
-                activeChatService.updateVacanciesByChatId(String.valueOf(chatId), false);
+                activeChatService.updateVacanciesByChatId(String.valueOf(chatId), false, messageThreadId);
                 responseText = "❌ Вакансии выключены";
                 break;
             case VACANCIES_SET_AREAS_BTN:
@@ -397,9 +381,9 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
     /**
      * Обрабатывает включение вакансий
      */
-    private void handleVacanciesOn(Long chatId) {
+    private void handleVacanciesOn(Long chatId, Integer messageThreadId) {
         try {
-            activeChatService.updateVacanciesByChatId(String.valueOf(chatId), true);
+            activeChatService.updateVacanciesByChatId(String.valueOf(chatId), true, messageThreadId);
             List<AreaDto> areas = activeChatService.getVacancyAreasWithNames(String.valueOf(chatId));
 
             StringBuilder message = new StringBuilder();
