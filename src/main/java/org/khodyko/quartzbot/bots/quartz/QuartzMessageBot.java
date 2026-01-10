@@ -94,13 +94,14 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
     private void handleIncomingMessage(Update update) {
         try {
             Long chatId = update.getMessage().getChatId();
+            Integer threadId = update.getMessage().getMessageThreadId();
             String msgTxt = update.getMessage().getText();
             
             if (msgTxt != null) {
                 if (msgTxt.equals("@" + botConfig.getBotName())) {
                     handleButtonGetQuestion(chatId);
                 } else if (msgTxt.equals("@" + botConfig.getBotName() + "_chat_settings")) {
-                    handleButtonChatSettings(chatId);
+                    handleButtonChatSettings(chatId, threadId);
                 } else if (msgTxt.startsWith(JAVA_TOPIC_SET_COMMAND)) {
                     String topicForChangeStr = msgTxt.substring(JAVA_TOPIC_SET_COMMAND.length()).trim();
                     JavaTopicEnum javaTopicEnum = JavaTopicEnum.findByString(topicForChangeStr);
@@ -165,7 +166,7 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
         }
     }
 
-    private void handleButtonChatSettings(Long chatId) {
+    private void handleButtonChatSettings(Long chatId, Integer threadId) {
         // Create buttons
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> buttons = new ArrayList<>();
@@ -243,7 +244,7 @@ public class QuartzMessageBot extends TelegramLongPollingBot {
         message.setChatId(String.valueOf(chatId));
         message.setText("Выберите опцию:");
         message.setReplyMarkup(markup);
-        setMessageThreadIdIfNeeded(message, String.valueOf(chatId));
+        message.setMessageThreadId(threadId);
 
         try {
             execute(message);
