@@ -160,7 +160,7 @@ public class VacancyServiceImpl implements VacancyService {
         // Отправляем итоговое сообщение
         if (totalSent > 0) {
             String summaryMessage = vacancyMessageFormatter.formatSummary(totalFound, date);
-            sendMessageToChatAndPin(summaryMessage, chatId);
+            sendMessageToChat(summaryMessage, chatId);
         } else {
             String noVacanciesMessage = String.format("❌ Вакансий за %s не найдено", date);
             sendMessageToChat(noVacanciesMessage, chatId);
